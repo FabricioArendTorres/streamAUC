@@ -2,7 +2,7 @@ import unittest
 from typing import Tuple, List
 import matplotlib.pyplot as plt
 import math
-from matplotlib.testing.decorators import cleanup
+# from matplotlib.testing.decorators import cleanup
 import numpy as np
 
 from streamauc.plot_util import create_square_subplots, plot_curve_and_auc
@@ -78,7 +78,6 @@ class TestCreateSquareSubplots(unittest.TestCase):
 
 class TestPlotcurveAUC(unittest.TestCase):
 
-    @cleanup
     def test_single_class_plot(self):
         fpr = np.array([0.0, 0.1, 0.2, 0.3, 1.0])
         tpr = np.array([0.0, 0.4, 0.6, 0.8, 1.0])
@@ -88,7 +87,6 @@ class TestPlotcurveAUC(unittest.TestCase):
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
-    @cleanup
     def test_multi_class_plot(self):
         fpr = np.array(
             [[0.0, 0.1, 0.2, 0.3, 1.0], [0.0, 0.2, 0.4, 0.6, 1.0]]
@@ -103,7 +101,6 @@ class TestPlotcurveAUC(unittest.TestCase):
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
-    @cleanup
     def test_invalid_fpr_shape(self):
         fpr = np.array([[[0.0, 0.1, 0.2, 0.3, 1.0]]])
         tpr = np.array([[[0.0, 0.4, 0.6, 0.8, 1.0]]])
