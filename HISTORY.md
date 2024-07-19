@@ -6,6 +6,14 @@ Changelog
 ------------
 - Update release.yml. [Fabricio Arend Torres]
 
+  fix: Adjusting publishing actions..
+
+
+0.1.1 (2024-07-19)
+------------------
+- Release: version 0.1.1 🚀 [FabricioArendTorres]
+- Update release.yml. [Fabricio Arend Torres]
+
 
 0.1.0 (2024-07-19)
 ------------------
