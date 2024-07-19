@@ -4,6 +4,7 @@ Changelog
 
 (unreleased)
 ------------
+- Release: version 0.1.1 🚀 [FabricioArendTorres]
 - Update release.yml. [Fabricio Arend Torres]
 
   fix: Adjusting publishing actions..
