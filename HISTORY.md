@@ -4,6 +4,11 @@ Changelog
 
 (unreleased)
 ------------
+- Update release.yml. [Fabricio Arend Torres]
+
+
+0.1.0 (2024-07-19)
+------------------
 
 Fix
 ~~~
@@ -13,6 +18,7 @@ Fix
 
 Other
 ~~~~~
+- Release: version 0.1.0 🚀 [FabricioArendTorres]
 - Merge pull request #7 from FabricioArendTorres/devel. [Fabricio Arend
   Torres]
 
