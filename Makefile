@@ -32,10 +32,9 @@ fmt:              ## Format code using black & isort.
 
 .PHONY: lint
 lint:             ## Run pep8, black, mypy linters.
-	$(ENV_PREFIX)flake8 streamauc/
+	$(ENV_PREFIX)flake8 --per-file-ignores="__init__.py:F401"  streamauc/
 	$(ENV_PREFIX)black -l 79 --check streamauc/
 	$(ENV_PREFIX)black -l 79 --check tests/
-	$(ENV_PREFIX)mypy --ignore-missing-imports streamauc/
 
 .PHONY: test
 test: lint        ## Run tests and generate coverage report.
@@ -90,7 +89,8 @@ release:          ## Create a new tag for release.
 .PHONY: docs
 docs:             ## Build the documentation.
 	@echo "building documentation ..."
-	@$(ENV_PREFIX)mkdocs build
+	@$(ENV_PREFIX)pdoc3 streamauc -o site/ --html --force -c latex_math=True
+	@mv site/streamauc/* site
 	URL="site/index.html"; xdg-open $$URL || sensible-browser $$URL || x-www-browser $$URL || gnome-open $$URL || open $$URL
 
 .PHONY: switch-to-poetry

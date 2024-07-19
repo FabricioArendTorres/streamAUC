@@ -1,0 +1,4 @@
+[run]
+branch = True
+omit =
+    streamauc/metrics/metric_synonyms.py

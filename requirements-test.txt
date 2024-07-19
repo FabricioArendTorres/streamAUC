@@ -8,3 +8,8 @@ pytest-cov
 mypy
 gitchangelog
 mkdocs
+mkdocstrings[python]
+mkdocs-gen-files
+scikit-learn
+ipdb
+tqdm
