@@ -32,7 +32,7 @@ def read_requirements(path):
 setup(
     name="streamauc",
     version=read("streamauc", "VERSION"),
-    description="Awesome streamauc created by FabricioArendTorres",
+    description="Streamauc created by FabricioArendTorres",
     url="https://github.com/FabricioArendTorres/streamAUC/",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
