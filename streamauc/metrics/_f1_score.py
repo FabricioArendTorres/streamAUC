@@ -39,11 +39,6 @@ def f1_onevsall(
         check_confusion_matrix_entries(fn, tp, fp)
 
     _f1 = (2 * tp) / (2 * tp + fp + fn + 1e-12)
-    # _f1 = np.divide(
-    #     2 * tp,
-    #     (2 * tp + fp + fn),
-    #     where=(2 * tp + fp + fn) != 0,
-    # )
     return _f1
 
 
