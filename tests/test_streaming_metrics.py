@@ -4,7 +4,7 @@ from streamauc import StreamingMetrics, AggregationMethod, auc
 from streamauc.metrics import f1_score, tpr, fpr
 import numpy as np
 
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_iris, load_breast_cancer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn import metrics
@@ -83,7 +83,8 @@ class TestConfusionMatrixUpdates(unittest.TestCase):
             curve.confusion_matrix, expected_empty_confm
         )
 
-        y_true = np.random.randint(0, 2, (10, curve.num_classes))
+        y_true = np.random.randint(0, 2, (10,))
+        y_true = np.eye(curve.num_classes)[y_true]
         y_pred = np.random.random((10, curve.num_classes))
         y_pred = y_pred / y_pred.sum(-1, keepdims=True)
 
@@ -132,7 +133,8 @@ class TestConfusionMatrixUpdates(unittest.TestCase):
             curve.update(y_true=y_true, y_score=y_pred)
 
         # should not throw any errors
-        y_true = np.random.randint(0, 2, (10, curve.num_classes, 1, 1, 1, 1))
+        y_true = np.random.randint(0, 2, (10,))
+        y_true = np.eye(curve.num_classes)[y_true][..., np.newaxis, np.newaxis]
         y_pred = np.random.randint(0, 2, (10, curve.num_classes))
         curve.update(y_true=y_true, y_score=y_pred)
 
@@ -250,6 +252,117 @@ class TestAUCMulticlass(unittest.TestCase):
 
 
 class TestStreamingMetrics(unittest.TestCase):
+    def setUp(self):
+        cancer_ds = load_breast_cancer()
+        X, y = cancer_ds.data, cancer_ds.target
+
+        random_state = np.random.RandomState(0)
+        n_samples, n_features = X.shape
+        X = np.concatenate(
+            [X, random_state.randn(n_samples, 200 * n_features)], axis=1
+        )
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.5, stratify=y, random_state=0
+        )
+
+        classifier = LogisticRegression(max_iter=1000)
+        self.y_score = classifier.fit(X_train, y_train).predict_proba(X_test)
+
+        self.y_test = y_test
+
+        thresholds = np.unique(self.y_score)
+        self.dim = 2
+        self.curve = StreamingMetrics(
+            thresholds=thresholds,
+            num_classes=self.dim,
+        )
+
+        # check that multiple updates have the same effect as one big..
+        half = self.y_test.shape[0] // 2
+        self.curve.update(self.y_test[:half], self.y_score[:half])
+        self.curve.update(self.y_test[half:], self.y_score[half:])
+
+    def test_total(self):
+        new_curve = StreamingMetrics(
+            num_thresholds=100,
+            num_classes=self.dim,
+        )
+
+        self.assertEqual(new_curve._total().shape, (100, self.dim))
+        np.testing.assert_allclose(
+            new_curve._total(), np.zeros_like(new_curve._total())
+        )
+
+        new_curve.update(self.y_test, self.y_score)
+        new_curve.update(self.y_test, self.y_score)
+        self.assertEqual(new_curve._total().shape, (100, self.dim))
+
+        np.testing.assert_allclose(
+            new_curve._total(),
+            2 * self.y_test.shape[0] * np.ones_like(new_curve._total()),
+        )
+
+    def test_confusion_matrix(self):
+        for class_idx in range(self.dim):
+            y_true = self.y_test == class_idx
+
+            for threshold in self.curve.thresholds:
+                y_pred = self.y_score[:, class_idx] >= threshold
+
+                # sklearn has the confusion matrix flipped
+                confm_ref = np.flip(confusion_matrix(y_true, y_pred))
+
+                computed_confm = self.curve.confusion_matrix[
+                    self.curve.thresholds.tolist().index(threshold), class_idx
+                ]
+                np.testing.assert_array_equal(computed_confm, confm_ref)
+
+    def test_precision_recall_curve(self):
+        for class_idx in range(self.dim):
+            precision, recall, thresholds = sk_precision_recall_curve(
+                self.y_test == class_idx, self.y_score[:, class_idx]
+            )
+
+            new_curve = StreamingMetrics(
+                thresholds=thresholds,
+                num_classes=self.dim,
+            )
+
+            # check that multiple updates have the same effect as one big..
+            half = self.y_test.shape[0] // 2
+            new_curve.update(self.y_test[:half], self.y_score[:half])
+            new_curve.update(self.y_test[half:], self.y_score[half:])
+            stream_prec, stream_recall, stream_thresholds = (
+                new_curve.precision_recall_curve(class_index=class_idx)
+            )
+            np.testing.assert_almost_equal(stream_thresholds[1:], thresholds)
+            np.testing.assert_almost_equal(precision[:1], stream_prec[:1])
+            np.testing.assert_almost_equal(recall, stream_recall)
+
+    def test_roc_curve(self):
+        for class_idx in range(self.dim):
+            _fpr, _tpr, thresholds = sk_roc_curve(
+                self.y_test == class_idx, self.y_score[:, class_idx]
+            )
+
+            new_curve = StreamingMetrics(
+                thresholds=thresholds[1:],
+                num_classes=self.dim,
+            )
+
+            # ensure that multiple updates have the same effect as one big..
+            half = self.y_test.shape[0] // 2
+            new_curve.update(self.y_test[:half], self.y_score[:half])
+            new_curve.update(self.y_test[half:], self.y_score[half:])
+
+            streaming_fpr, streaming_tpr, _thr = new_curve.roc_curve(
+                class_index=class_idx
+            )
+            np.testing.assert_almost_equal(_fpr, streaming_fpr[:-1])
+            np.testing.assert_almost_equal(_tpr, streaming_tpr[:-1])
+
+
+class TestStreamingMetricsBinary(unittest.TestCase):
     def setUp(self):
         iris = load_iris()
         X, y = iris.data, iris.target

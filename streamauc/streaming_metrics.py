@@ -47,19 +47,19 @@ def _validate_thresholds(
 
 class StreamingMetrics:
     """
-    Class for computing metrics in a minibatch-wise, iterative, fashion.
+    Class for keeping track of metrics for many thresholds in a
+    minibatch-wise, iterative, fashion.
 
     Parameters
     ----------
     num_thresholds : int, optional
         Number of thresholds to evaluate the curve. Default is 200.
-    curve_type : str, optional
-        Type of curve to compute, either "ROC" or "PR". Default is "PR".
     num_classes : int
         Number of classes in the multiclass setting. Must be >= 2.
     thresholds : list of float, optional
-        List of specific thresholds to evaluate the curve.
-
+        List of specific thresholds to evaluate the metrics at.
+        A probability >= threshold is defined as a positive prediction for
+        the respective class.
     """
 
     def __init__(
@@ -140,7 +140,7 @@ class StreamingMetrics:
             If the shapes of `y_true` and `y_pred` do not match.
         """
 
-        y_true = np.squeeze(y_true)
+        y_true = np.squeeze(y_true).astype(int)
         y_score = np.squeeze(y_score)
 
         if check_inputs:
@@ -148,6 +148,10 @@ class StreamingMetrics:
                 raise ValueError(
                     f"Unknown shape of y_true: {y_true.shape},"
                     f"must be squeezable to either [-1, num_classes] or [-1]."
+                )
+            if y_true.ndim==2 and np.any( y_true.sum(-1)!=1):
+                raise ValueError(
+                    "The provided one-hot encoding is invalid."
                 )
             if y_score.ndim > 2:
                 raise ValueError(
@@ -164,24 +168,25 @@ class StreamingMetrics:
                 raise ValueError(f"Invalid shape of y_pred: {y_score.shape}")
 
         if y_true.ndim == 2 and y_true.shape[1] == self.num_classes:
-            y_true_argmax = np.argmax(y_true, -1)
+            y_onehot = y_true
         else:
-            y_true_argmax = y_true
+            y_onehot = np.eye(self.num_classes, dtype=int)[y_true]
 
-        for threshold_idx, threshold in enumerate(self.thresholds):
-            for class_idx in range(self.num_classes):
-                pred_pos = y_score[:, class_idx] >= threshold
-                is_pos = y_true_argmax == class_idx
+        # use numpy broadcasting to get predictions
+        pred_pos = y_score[np.newaxis, ...] >= self.thresholds.reshape(-1,1,1)
+        is_pos = y_onehot[np.newaxis, ...]
 
-                tp = np.sum(pred_pos & is_pos)
-                fp = np.sum(pred_pos & (~is_pos))
-                fn = np.sum((~pred_pos) & (is_pos))
-                tn = np.sum((~pred_pos) & (~is_pos))
+        # sum over the minibatch samples
+        tp = np.sum(pred_pos & is_pos, 1)
+        fp = np.sum(pred_pos & (~is_pos), 1)
+        fn = np.sum((~pred_pos) & (is_pos), 1)
+        tn = np.sum((~pred_pos) & (~is_pos), 1)
 
-                self._confusion_matrix[threshold_idx, class_idx, 0, 0] += tp
-                self._confusion_matrix[threshold_idx, class_idx, 1, 0] += fp
-                self._confusion_matrix[threshold_idx, class_idx, 1, 1] += tn
-                self._confusion_matrix[threshold_idx, class_idx, 0, 1] += fn
+        # update confusion matrix entry
+        self._confusion_matrix[..., 0, 0] += tp
+        self._confusion_matrix[..., 1, 0] += fp
+        self._confusion_matrix[..., 1, 1] += tn
+        self._confusion_matrix[..., 0, 1] += fn
 
     def _total(self) -> np.ndarray:
         """
