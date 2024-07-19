@@ -31,6 +31,19 @@ This package supports a range of classical performance metrics, such as:
 - High Test Coverage: Metrics are unit tested against sklearn metrics.
 - Permissive License: Licensed under Apache 2.0.
 
+## Installation
+
+### Pypi Current Release
+```bash
+pip install streamauc
+```
+
+### Latest Version from Github
+```bash
+pip install git+https://github.com/FabricioArendTorres/streamAUC.git
+```
+
+
 ## Usage
 Below you can find pseudocode for the usage of this package.
 For a more comprehensive and self-consistent example, see `examples/example.py`.
