@@ -4,6 +4,13 @@ Changelog
 
 (unreleased)
 ------------
+- Chore: trying to fix github actions. [Fabricio Arend Torres]
+- Chore: trying to fix github actions. [Fabricio Arend Torres]
+
+
+0.1.2 (2024-07-19)
+------------------
+- Release: version 0.1.2 🚀 [FabricioArendTorres]
 - Release: version 0.1.1 🚀 [FabricioArendTorres]
 - Update release.yml. [Fabricio Arend Torres]
 
