@@ -32,12 +32,13 @@ def read_requirements(path):
 setup(
     name="streamauc",
     version=read("streamauc", "VERSION"),
-    description="Streamauc created by FabricioArendTorres",
+    description="Stream and minibatch based metrics for probabilistic "
+                "multi-class classification.",
     url="https://github.com/FabricioArendTorres/streamAUC/",
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
-    author="FabricioArendTorres",
-    packages=["streamauc"],
+    author="Fabricio Arend Torres",
+    packages=find_packages(exclude=["tests", ".github"]),
     install_requires=["numpy", "matplotlib"],
     extras_require={"test": ["pytest", "coverage", "flake8", "black",
                              "isort", "pytest-cov", "mypy", "gitchangelog",
