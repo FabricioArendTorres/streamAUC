@@ -72,7 +72,8 @@ for i in tqdm(range(num_mbs)):
     mb_y = y_test[mb_size * i:mb_size * (i + 1)]
 
     y_pred = classifier.predict_proba(mb_X)
-    stream_metrics.update(y_true=mb_y, y_score=y_pred)
+    # remove check inputs for faster updates
+    stream_metrics.update(y_true=mb_y, y_score=y_pred, check_inputs=False)
 
 
 # ###### METRICS
