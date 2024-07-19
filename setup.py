@@ -38,6 +38,6 @@ setup(
     long_description_content_type="text/markdown",
     author="FabricioArendTorres",
     packages=find_packages(exclude=["tests", ".github"]),
-    install_requires=read_requirements("requirements.txt"),
+    install_requires=["numpy", "matplotlib"],
     extras_require={"test": read_requirements("requirements-test.txt")},
 )
