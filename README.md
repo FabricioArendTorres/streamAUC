@@ -85,7 +85,7 @@ stream_metrics.reset()
 
 ```
 
-### In a training loop
+### Track metrics in a minibatch based training loop
 ```py
 import matplotlib.pyplot as plt
 
