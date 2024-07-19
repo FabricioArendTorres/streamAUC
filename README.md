@@ -159,7 +159,10 @@ number of true positives at each threshold in a one-vs-all setting for the
 class with index 2.
 
 See for example the F1 metric implementation for the required interface:
-```
+```python
+from typing import Optional
+import numpy as np
+
 from streamauc.utils import AggregationMethod, check_confusion_matrix_entries
 
 def custom_f1_score(
