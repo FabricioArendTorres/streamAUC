@@ -37,7 +37,9 @@ setup(
     long_description=read("README.md"),
     long_description_content_type="text/markdown",
     author="FabricioArendTorres",
-    packages=find_packages(exclude=["tests", ".github"]),
+    packages=["streamauc"],
     install_requires=["numpy", "matplotlib"],
-    extras_require={"test": read_requirements("requirements-test.txt")},
+    extras_require={"test": ["pytest", "coverage", "flake8", "black",
+                             "isort", "pytest-cov", "mypy", "gitchangelog",
+                             "pdoc3", "scikit-learn", "ipdb", "tqdm"]},
 )
