@@ -1,0 +1,6 @@
+https://fabricioarendtorres.github.io/streamAUC/metrics/metric_synonyms.html
+https://fabricioarendtorres.github.io/streamAUC/metrics/index.html
+https://fabricioarendtorres.github.io/streamAUC/streaming_metrics.html
+https://fabricioarendtorres.github.io/streamAUC/index.html
+https://fabricioarendtorres.github.io/streamAUC/plot_util.html
+https://fabricioarendtorres.github.io/streamAUC/utils.html
