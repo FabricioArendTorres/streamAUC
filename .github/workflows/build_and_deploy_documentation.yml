@@ -1,0 +1,52 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.8
+
+    - uses: actions/cache@v2
+      name: Set up caches
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install .
+
+    - name: Build documentation
+      run: |
+        pdoc3 streamauc -o docs/ --html --force 
+        mv docs/streamauc/* docs
+        rmdir docs/streamauc
+
+    # Upload for introspection, useful for pull requests and debugging
+    - uses: actions/upload-artifact@v3
+      with:
+        name: generated-site
+        path: docs/
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs
