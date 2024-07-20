@@ -45,6 +45,11 @@ jobs:
         BASE_URL="https://fabricioarendtorres.github.io/streamAUC/"
         find docs -name '*.html' | sed "s|docs/|${BASE_URL}|g" > docs/sitemap.txt
 
+    - name: Generate robots.txt
+      run: |
+        echo "User-agent: *" > docs/robots.txt
+        echo "Sitemap: https://fabricioarendtorres.github.io/streamAUC/sitemap.txt" >> docs/robots.txt
+
     # Upload for introspection, useful for pull requests and debugging
     - uses: actions/upload-artifact@v3
       with:
