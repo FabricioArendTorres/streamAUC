@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://fabricioarendtorres.github.io/streamAUC/sitemap.txt
