@@ -3,6 +3,8 @@
 [![codecov](https://codecov.io/gh/FabricioArendTorres/streamAUC/branch/main/graph/badge.svg?token=streamAUC_token_here)](https://codecov.io/gh/FabricioArendTorres/streamAUC)
 [![CI](https://github.com/FabricioArendTorres/streamAUC/actions/workflows/main.yml/badge.svg)](https://github.com/FabricioArendTorres/streamAUC/actions/workflows/main.yml)
 
+## [Documentation](https://fabricioarendtorres.github.io/streamAUC/)
+
 ## Multi-Class Classification Metrics from data streams and minibatches
 
 A low dependency python package for keeping track of classification metrics 
