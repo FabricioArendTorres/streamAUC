@@ -39,7 +39,7 @@ setup(
     long_description_content_type="text/markdown",
     author="Fabricio Arend Torres",
     packages=find_packages(exclude=["tests", ".github"]),
-    install_requires=["numpy", "matplotlib"],
+    install_requires=["numpy", "matplotlib", "numba"],
     extras_require={"test": ["pytest", "coverage", "flake8", "black",
                              "isort", "pytest-cov", "mypy", "gitchangelog",
                              "pdoc3", "scikit-learn", "ipdb", "tqdm"]},

@@ -29,7 +29,7 @@ This package supports a range of classical performance metrics, such as:
 
 ## Lightweight, tested, and permissive License
 
-- Only Numpy and Matplotlib are requirements.
+- Only Numpy, Numba, and Matplotlib are requirements.
 - High Test Coverage: Metrics are unit tested against sklearn metrics.
 - Permissive License: Licensed under Apache 2.0.
 

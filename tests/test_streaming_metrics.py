@@ -1,7 +1,7 @@
-import numpy as np
 import unittest
 from streamauc import StreamingMetrics, AggregationMethod, auc
 from streamauc.metrics import f1_score, tpr, fpr
+from streamauc.utils import onehot_encode
 import numpy as np
 
 from sklearn.datasets import load_iris, load_breast_cancer
@@ -83,8 +83,8 @@ class TestConfusionMatrixUpdates(unittest.TestCase):
             curve.confusion_matrix, expected_empty_confm
         )
 
-        y_true = np.random.randint(0, 2, (10,))
-        y_true = np.eye(curve.num_classes)[y_true]
+        y_true_ = np.random.randint(0, 2, (10,))
+        y_true = np.eye(curve.num_classes, dtype=int)[y_true_]
         y_pred = np.random.random((10, curve.num_classes))
         y_pred = y_pred / y_pred.sum(-1, keepdims=True)
 
