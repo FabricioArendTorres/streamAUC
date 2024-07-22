@@ -1,11 +1,12 @@
 from typing import Callable, List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
+import numba
 import numpy as np
 
 import streamauc.metrics as metrics
 from streamauc.plot_util import plot_curve_and_auc
-from streamauc.utils import AggregationMethod, auc
+from streamauc.utils import AggregationMethod, auc, onehot_encode
 
 __all__ = ["StreamingMetrics"]
 
@@ -168,21 +169,20 @@ class StreamingMetrics:
         if y_true.ndim == 2 and y_true.shape[1] == self.num_classes:
             y_onehot = y_true
         else:
-            y_onehot = np.eye(self.num_classes, dtype=int)[y_true]
+            y_onehot = onehot_encode(y_true, num_classes=self.num_classes)
 
         # use numpy broadcasting to get predictions
+        # breakpoint()
         pred_pos = y_score[np.newaxis, ...] >= self.thresholds.reshape(
             -1, 1, 1
         )
-        is_pos = y_onehot[np.newaxis, ...]
 
-        # sum over the minibatch samples
-        tp = np.sum(pred_pos & is_pos, 1)
-        fp = np.sum(pred_pos & (~is_pos), 1)
-        fn = np.sum((~pred_pos) & (is_pos), 1)
-        tn = np.sum((~pred_pos) & (~is_pos), 1)
+        tp, fp, fn, tn = compute_confusion_matrix(
+            pred_pos=pred_pos, y_onehot=y_onehot
+        )
 
         # update confusion matrix entry
+
         self._confusion_matrix[..., 0, 0] += tp
         self._confusion_matrix[..., 1, 0] += fp
         self._confusion_matrix[..., 1, 1] += tn
@@ -505,3 +505,26 @@ class StreamingMetrics:
             class_names=class_names,
             **kwargs,
         )
+
+
+@numba.njit
+def compute_confusion_matrix(pred_pos, y_onehot):
+    # Initialize the result arrays
+    tp = np.zeros((pred_pos.shape[0], pred_pos.shape[-1]), dtype=np.int64)
+    fp = np.zeros((pred_pos.shape[0], pred_pos.shape[-1]), dtype=np.int64)
+    fn = np.zeros((pred_pos.shape[0], pred_pos.shape[-1]), dtype=np.int64)
+    tn = np.zeros((pred_pos.shape[0], pred_pos.shape[-1]), dtype=np.int64)
+
+    # Compute the confusion matrix components
+    for i in range(pred_pos.shape[0]):
+        for j in range(pred_pos.shape[1]):
+            for k in range(pred_pos.shape[2]):
+                if pred_pos[i, j, k] and y_onehot[j, k]:
+                    tp[i, k] += 1
+                elif pred_pos[i, j, k] and not y_onehot[j, k]:
+                    fp[i, k] += 1
+                elif not pred_pos[i, j, k] and y_onehot[j, k]:
+                    fn[i, k] += 1
+                elif not pred_pos[i, j, k] and not y_onehot[j, k]:
+                    tn[i, k] += 1
+    return tp, fp, fn, tn

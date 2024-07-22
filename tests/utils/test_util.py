@@ -1,6 +1,6 @@
 import unittest
-
-from streamauc.utils import _all_equal
+import numpy as np
+from streamauc.utils import _all_equal, onehot_encode
 
 
 class TestAllEqual(unittest.TestCase):
@@ -69,3 +69,29 @@ class TestAllEqual(unittest.TestCase):
             _all_equal(large_list),
             "Large list with one different element, " "should return False",
         )
+
+
+class TestOneHotEncodeOptimized(unittest.TestCase):
+    def test_onehot_encode_optimized(self):
+        int_masks = np.array([0, 1, 2, 0, 1, 0])  # Sample integer masks
+        int_masks_before = np.copy(int_masks)
+        num_classes = 3  # Number of classes
+
+        # Call the onehot_encode function
+        onehot_masks = onehot_encode(int_masks, num_classes)
+
+        # Define the expected output
+        expected_output = np.array(
+            [
+                [1, 0, 0],  # Class 0
+                [0, 1, 0],  # Class 1
+                [0, 0, 1],  # Class 2
+                [1, 0, 0],  # Class 0
+                [0, 1, 0],  # Class 1
+                [1, 0, 0],  # Class 0
+            ]
+        )
+        # Perform assertions to validate the output
+        self.assertTrue(np.array_equal(onehot_masks, expected_output))
+        self.assertEqual(onehot_masks.shape, (len(int_masks), num_classes))
+        self.assertTrue(np.all(int_masks_before == int_masks))

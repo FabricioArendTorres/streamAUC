@@ -8,6 +8,7 @@ __all__ = [
     "auc",
     "copy_docstring_from",
     "check_confusion_matrix_entries",
+    "onehot_encode",
 ]
 
 
@@ -144,3 +145,52 @@ def auc(vals_x: np.ndarray, vals_y: np.ndarray) -> Union[np.ndarray, float]:
         )
     else:
         raise NotImplementedError("Inputs must be 1 or 2 dimensional.")
+
+
+def onehot_encode(int_masks: np.ndarray, num_classes: int) -> np.ndarray:
+    """
+    Convert integer masks to one-hot encoded masks.
+    Optimized methods that does not explode in memory for larger input arrays.
+
+    Parameters
+    ----------
+    int_masks : np.ndarray
+        An array of integer class labels.
+        Each element in the array is an integer
+        representing a class label.
+    num_classes : int
+        The number of distinct classes. This will determine the depth
+        of the one-hot
+        encoded dimension.
+
+    Returns
+    -------
+    np.ndarray
+        A one-hot encoded array with shape (n, num_classes), where n is
+        the number of
+        elements in `int_masks`. Each row in the output corresponds to
+        a one-hot
+        encoded version of the respective element in `int_masks`.
+
+    """
+    # Number of classes (0-5, so we have 6 classes)
+
+    # Initialize the output array with zeros and the correct shape
+    # (n, w, h, 6) where 6 is the number of classes
+
+    new_mask = int_masks
+
+    one_hot_encoded = np.zeros(
+        new_mask.squeeze().shape[:] + (num_classes,), dtype=bool
+    )
+
+    # Flatten the labels array to use for indexing, labels are assumed to
+    # be within the correct range
+    indices = new_mask.flatten()
+    # Calculate the linear indices in the flattened array which corresponds
+    # to the position of 1s for one-hot encoding
+    linear_indices = np.arange(indices.size) * num_classes + indices
+
+    # Use flat indexing to set the appropriate elements to 1
+    one_hot_encoded.ravel()[linear_indices] = 1
+    return one_hot_encoded
