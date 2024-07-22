@@ -289,21 +289,20 @@ the respective class.</dd>
         if y_true.ndim == 2 and y_true.shape[1] == self.num_classes:
             y_onehot = y_true
         else:
-            y_onehot = np.eye(self.num_classes, dtype=int)[y_true]
+            y_onehot = onehot_encode(y_true, num_classes=self.num_classes)
 
         # use numpy broadcasting to get predictions
+        # breakpoint()
         pred_pos = y_score[np.newaxis, ...] &gt;= self.thresholds.reshape(
             -1, 1, 1
         )
-        is_pos = y_onehot[np.newaxis, ...]
 
-        # sum over the minibatch samples
-        tp = np.sum(pred_pos &amp; is_pos, 1)
-        fp = np.sum(pred_pos &amp; (~is_pos), 1)
-        fn = np.sum((~pred_pos) &amp; (is_pos), 1)
-        tn = np.sum((~pred_pos) &amp; (~is_pos), 1)
+        tp, fp, fn, tn = compute_confusion_matrix(
+            pred_pos=pred_pos, y_onehot=y_onehot
+        )
 
         # update confusion matrix entry
+
         self._confusion_matrix[..., 0, 0] += tp
         self._confusion_matrix[..., 1, 0] += fp
         self._confusion_matrix[..., 1, 1] += tn

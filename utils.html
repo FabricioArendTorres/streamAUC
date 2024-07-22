@@ -85,6 +85,33 @@ negative values.</p></div>
 <dd>The decorated function with the copied docstring.</dd>
 </dl></div>
 </dd>
+<dt id="streamauc.utils.onehot_encode"><code class="name flex">
+<span>def <span class="ident">onehot_encode</span></span>(<span>int_masks: numpy.ndarray, num_classes: int) ‑> numpy.ndarray</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert integer masks to one-hot encoded masks.
+Optimized methods that does not explode in memory for larger input arrays.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>int_masks</code></strong> :&ensp;<code>np.ndarray</code></dt>
+<dd>An array of integer class labels.
+Each element in the array is an integer
+representing a class label.</dd>
+<dt><strong><code>num_classes</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of distinct classes. This will determine the depth
+of the one-hot
+encoded dimension.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>np.ndarray</code></dt>
+<dd>A one-hot encoded array with shape (n, num_classes), where n is
+the number of
+elements in <code>int_masks</code>. Each row in the output corresponds to
+a one-hot
+encoded version of the respective element in <code>int_masks</code>.</dd>
+</dl></div>
+</dd>
 </dl>
 </section>
 <section>
@@ -173,6 +200,7 @@ each class in this manner.</p></div>
 <li><code><a title="streamauc.utils.auc" href="#streamauc.utils.auc">auc</a></code></li>
 <li><code><a title="streamauc.utils.check_confusion_matrix_entries" href="#streamauc.utils.check_confusion_matrix_entries">check_confusion_matrix_entries</a></code></li>
 <li><code><a title="streamauc.utils.copy_docstring_from" href="#streamauc.utils.copy_docstring_from">copy_docstring_from</a></code></li>
+<li><code><a title="streamauc.utils.onehot_encode" href="#streamauc.utils.onehot_encode">onehot_encode</a></code></li>
 </ul>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
